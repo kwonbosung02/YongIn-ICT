@@ -1,18 +1,23 @@
 
 #include <Servo.h> 
 #include <LiquidCrystal_I2C.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 
 
 #define CHECK 16
-
 #define LED_PIN1 D8
 #define LED_PIN2 D7
-
 #define SERVO D6
-
 #define TOUCH D0
-
 #define RELLAY D5
+
+const char* ssid = "pinecondo";
+const char* password = "pine2001";
+const char* host = "http://pwnable.co.kr";
+
+WiFiClient client;
+HTTPClient http;
 
 Servo servo;
 LiquidCrystal_I2C lcd(0x27,16,2);
@@ -28,13 +33,23 @@ void setup() {
   lcd.begin();
   lcd.backlight();
   lcd.print("UV-Cleaner");
+  Wifi_connect();
+  lcd.setCursor(0,1);
+  lcd.print("WiFi Connected");
   delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("                ");
+  lcd.setCursor(10,0);
+  lcd.print("(WiFi)");
   
 }
 int count = 0;
   
 void loop() {
-
+  if(WiFi.status() != WL_CONNECTED){
+     Wifi_connect();
+     
+  }
   if(digitalRead(TOUCH) == 1){ //clicked
     if(count == 0){
       count = 1;
@@ -116,3 +131,10 @@ void servoClose(){
     delay(40);
   }
 }
+
+void Wifi_connect() {
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) { 
+    delay(500);
+    }
+ }
